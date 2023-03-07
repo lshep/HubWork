@@ -31,7 +31,7 @@ dev.off()
 
 ################################################################################
 ##
-## Total Number of Downloads for packages
+## Total Number of Downloads for AH/AH package
 ##
 ################################################################################
 
@@ -101,8 +101,26 @@ ExperimentHubSoftware, 4
 ################################################################################
 
 ##"https://bioconductor.org/packages/devel/bioc/html/ExperimentHub.html"
-## ?from landing page or from pkgtools
+## ?from landing page or from biocpkgtools  hopefully they would match
 
+url = "https://bioconductor.org/packages/3.17/bioc/VIEWS"
+dcf = read.dcf(url(url))
+temp = gsub("\n", "", dcf[match(PkgList, dcf[,"Package"]),
+            c("Package","dependsOnMe","importsMe", "suggestsMe")])
+
+countDF = as.data.frame(matrix(0, nrow=nrow(temp), ncol = ncol(temp)))
+for(i in 1:nrow(temp)){
+    for(j in 2:ncol(temp)){
+        countDF[i,j] = length(strsplit(temp[i,j],split=",")[[1]])        
+    }
+}
+colnames(countDF) = colnames(temp)
+countDF$Total = rowSums(countDF)
+countDF[,1] = temp[,"Package"]
+
+
+
+## Do we want stats on how often these packages are downloaded? 
 
 
 ################################################################################
