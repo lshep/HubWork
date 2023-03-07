@@ -3,6 +3,8 @@
 ##
 ## Table of total resources in hubs
 ##
+##  Manually grabbed numbers from annual reports
+##   current is reported on ExperimentHub()/AnnotationHub() in R 
 ################################################################################
 
 Hubtotals = data.frame("year"=c("2017", "2018", "2019", "2020", "2021", "2022", "current"),
@@ -22,7 +24,7 @@ pdf("HubTotals.pdf")
 grid.arrange(p1, p2)
 dev.off()
 
-## Print Hubtotals ??
+## Print table of Hubtotals ??
 
 
 
@@ -75,7 +77,7 @@ pdf("HubPkgDownloads.pdf")
 grid.arrange(p1, p2)
 dev.off()
 
-## Print EHPkgDownloads and AHPkgDownloads ??
+## Print tables of EHPkgDownloads and AHPkgDownloads ??
 
 
 
