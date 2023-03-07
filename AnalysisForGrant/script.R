@@ -25,7 +25,7 @@ grid.arrange(p1, p2)
 dev.off()
 
 ## Print table of Hubtotals ??
-
+Hubtotals
 
 
 
@@ -78,7 +78,8 @@ grid.arrange(p1, p2)
 dev.off()
 
 ## Print tables of EHPkgDownloads and AHPkgDownloads ??
-
+EHPkgDownloads 
+AHPkgDownloads
 
 
 ################################################################################
@@ -100,9 +101,6 @@ ExperimentHubSoftware, 4
 ##
 ################################################################################
 
-##"https://bioconductor.org/packages/devel/bioc/html/ExperimentHub.html"
-## ?from landing page or from biocpkgtools  hopefully they would match
-
 url = "https://bioconductor.org/packages/3.17/bioc/VIEWS"
 dcf = read.dcf(url(url))
 temp = gsub("\n", "", dcf[match(PkgList, dcf[,"Package"]),
@@ -118,9 +116,10 @@ colnames(countDF) = colnames(temp)
 countDF$Total = rowSums(countDF)
 countDF[,1] = temp[,"Package"]
 
+## Print countDF ??
+countDF
 
-
-## Do we want stats on how often these packages are downloaded? 
+## Do we want stats on how often dependent packages are downloaded? 
 
 
 ################################################################################
