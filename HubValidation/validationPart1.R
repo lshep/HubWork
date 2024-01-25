@@ -118,6 +118,6 @@ ah_bad = ah_temp[which(ah_temp[,3]=="Public"),]
 ## investigate these?
 ## make sure rdatadateremoved is also NA
 
-save(ah_sub_path, ah_results, ah_temp, ah_bad, file="ahresults.rdata")
+save(ah_sub_path, ah_results, ah_temp, ah_bad, file="ahresults.RData")
 
 message("I'm done with AnnotationHub")
