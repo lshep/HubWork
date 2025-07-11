@@ -29,7 +29,7 @@ for(i in 1:length(eh)){
 EHids = rownames(mcols(eh))
 
 
-save(EHids, EHcheck, EHpackage, file="EH_V2.RData")
+save(EHids, EHcheck, EHpackage, file="EH_LoadingValidation.RData")
 
 
 ah <- AnnotationHub()
@@ -48,4 +48,4 @@ for(i in 1:length(ah)){
 }
 AHids = rownames(mcols(ah))
 
-save(AHids, AHcheck, AHpreparerclass, file="AH_V2.RData")
+save(AHids, AHcheck, AHpreparerclass, file="AH_LoadingValidation.RData")
