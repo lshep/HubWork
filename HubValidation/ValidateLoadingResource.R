@@ -16,9 +16,23 @@ eh <- ExperimentHub()
 EHcheck = rep(TRUE, length(eh))
 EHpackage = rep(TRUE, length(eh))
 
+pkgsList = BiocManager::available()
+
 for(i in 1:length(eh)){
     message("EH: ", i, " of ", length(eh))
     id = rownames(mcols(eh[i]))
+    res_pkg = as.character(package(eh[i]))
+    if (!(res_pkg %in% installed.packages()[,"Package"])){
+        if(res_pkg %in% pkgsList){
+            tryCatch({
+                install(res_pkg)
+            }, error=function(err){
+                message("unable to install", res_pkg) 
+            })
+        }else{
+            message("package not found in Bioconductor:", res_pkg)
+        }
+    }        
     EHcheck[i] = tryCatch({
         temp = eh[[id]]
         TRUE
