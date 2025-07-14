@@ -1,3 +1,5 @@
+## Ensure main classes of Bioconductor have been installed before running
+
 library(dplyr)
 library(dbplyr)
 library(RSQLite)
