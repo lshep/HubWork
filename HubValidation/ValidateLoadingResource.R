@@ -5,7 +5,7 @@ library(AnnotationHub)
 library(ExperimentHub)
 library(BiocFileCache)
 library(httr)
-
+library(BiocManager)
 
 ##
 ## Start only with those we say should be currently available
@@ -27,10 +27,10 @@ for(i in 1:length(eh)){
             tryCatch({
                 install(res_pkg)
             }, error=function(err){
-                message("unable to install", res_pkg) 
+                message("unable to install ", res_pkg) 
             })
         }else{
-            message("package not found in Bioconductor:", res_pkg)
+            message("package not found in Bioconductor: ", res_pkg)
         }
     }        
     EHcheck[i] = tryCatch({
