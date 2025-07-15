@@ -1,8 +1,5 @@
 ## Ensure main classes of Bioconductor have been installed before running
 
-library(dplyr)
-library(dbplyr)
-library(RSQLite)
 library(AnnotationHub)
 library(ExperimentHub)
 library(BiocFileCache)
@@ -53,7 +50,7 @@ AHcheck = rep(TRUE, length(ah))
 AHpreparerclass = rep(TRUE, length(ah))
 
 for(i in 1:length(ah)){
-    message("AH: ",i, " of ", length(eh))
+    message("AH: ",i, " of ", length(ah))
     id = rownames(mcols(ah[i]))
     AHcheck[i] = tryCatch({
         temp = ah[[id]]
