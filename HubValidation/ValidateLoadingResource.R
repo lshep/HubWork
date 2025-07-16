@@ -1,4 +1,6 @@
 ## Ensure main classes of Bioconductor have been installed before running
+## There will be some that are not installed that are required
+## Ideal pre-install any package associated with and required packages
 
 library(AnnotationHub)
 library(ExperimentHub)
