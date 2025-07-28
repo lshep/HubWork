@@ -1,3 +1,7 @@
+## Originally tried a m3.medium: 8 CPU 30 GB and upped to 100 GB root disk
+##   Some resources crashed maxing out CPU/RAM
+## Try m3.xl: 32 CPU 125 RAM (and still upped to 100 GB root disk -- maybe more?)
+
 sudo apt-get install subversion
 sudo apt-get install libxml2-dev
 sudo apt-get install libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev  libmagick++-dev libcairo2-dev libgsl-dev
@@ -16,3 +20,4 @@ vi .bash_aliases
     alias Rscript='/home/exouser/R-Install/bin/R-4-5-branch/bin/Rscript'
 
 ## Preinstall heavy used Bioc class packages to make things easier?? 
+## See ValidationLoadingResouce for some packages.
