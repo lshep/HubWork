@@ -19,7 +19,9 @@ for(i in 1:length(eh)){
     EHpackage[i] = as.character(package(eh[i]))
 }
 EHids = rownames(mcols(eh))
-save(EHids, EHFileSize, EHpackage, file="EH_fileSize.RData")
+eh_mat = data.frame(EHids, EHpackage, EHFileSize)
+eh_mat_sorted <- eh_mat[order(eh_mat[, "EHFileSize"], decreasing=TRUE, na.last = TRUE), ]
+save(EHids, EHFileSize, EHpackage, eh_mat, eh_mat_sorted, file="EH_fileSize.RData")
 
 ah <- AnnotationHub()
 AHFileSize = rep(0, length(ah))
@@ -36,4 +38,6 @@ for(i in 1:length(ah)){
     AHpreparerclass[i] = mcols(ah[i])$preparerclass
 }
 AHids = rownames(mcols(ah))
-save(AHids, AHFileSize, AHpreparerclass, file="AH_fileSize.RData")
+ah_mat = data.frame(AHids, AHpreparerclass, AHFileSize)
+ah_mat_sorted <- ah_mat[order(ah_mat[, "AHFileSize"], decreasing=TRUE, na.last = TRUE), ]
+save(AHids, AHFileSize, AHpreparerclass, ah_mat, ah_mat_sorted, file="AH_fileSize.RData")
