@@ -51,6 +51,7 @@ if (!(i %in% skipped)){
     }, error=function(err){FALSE})
     removeResources(eh, ids=id)
     EHpackage[i] = package(eh[i])
+    save.image("EH_PartialSave_LoadingValidation.RData")
 }else{
 	save.image("EH_PartialSave_LoadingValidation.RData")
 }
@@ -68,6 +69,13 @@ save(EHids, EHcheck, EHpackage, file="EH_LoadingValidation.RData")
 ##
 
 ## What packages or recipes need to be loaded to test resources??
+## Requires in AnnotationHub/R
+## c("Rsamtools", "GenomicRanges", "VariantAnnotation", "rtracklayer",
+## "Seqinfo", "rtracklayer", "rBiopaxParser", "Biobase", "gdsfmt", "rhdf5",
+## "CompoundDb", "keras", "ensembldb", "SummarizedExperiment", "mzR",
+## "Biostrings")
+## temp = unique(mcols(ah)$preparerclass)
+## temp[temp %in% BiocManager::available()]
 
 if(FALSE){
     
