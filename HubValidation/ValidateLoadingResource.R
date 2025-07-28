@@ -19,16 +19,16 @@ library(dplyr)
 
 
 eh <- ExperimentHub()
-#EHcheck = rep(TRUE, length(eh))
-#EHpackage = rep(TRUE, length(eh))
-load("EH_PartialSave_LoadingValidation.RData")
+EHcheck = rep(TRUE, length(eh))
+EHpackage = rep(TRUE, length(eh))
+#load("EH_PartialSave_LoadingValidation.RData")
 
 pkgsList = BiocManager::available()
 skipped = c(3272,6970,6971,6972,7296)
 
-## 6970 maxed CPU and RAM 
+## 6970 maxed CPU and RAM ???
 
-for(i in 6973:length(eh)){
+for(i in 1:length(eh)){
     message("EH: ", i, " of ", length(eh))
 
 if (!(i %in% skipped)){
@@ -67,7 +67,10 @@ save(EHids, EHcheck, EHpackage, file="EH_LoadingValidation.RData")
 ## Also investigate recipes/package requirements  
 ##
 
+## What packages or recipes need to be loaded to test resources??
+
 if(FALSE){
+    
 ah <- AnnotationHub()
 AHcheck = rep(TRUE, length(ah))
 AHpreparerclass = rep(TRUE, length(ah))
@@ -85,4 +88,5 @@ for(i in 1:length(ah)){
 AHids = rownames(mcols(ah))
 
 save(AHids, AHcheck, AHpreparerclass, file="AH_LoadingValidation.RData")
+
 }
