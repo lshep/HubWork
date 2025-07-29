@@ -1,4 +1,5 @@
 ## Ensure main classes of Bioconductor have been installed before running
+## c('SummarizedExperiment', 'GenomicRanges', 'RaggedExperiment', 'Biostrings', 'BiocSet', 'MultiAssayExperiment', 'SingleCellExperiment', 'SpatialExperiment', 'Spectra', 'BiocIO', 'ExperimentHub', 'dplyr', 'httr')
 ## There will be some that are not installed that are required
 ## Ideal pre-install any package associated with and required packages
 ##  to speed up change to install unique(package(eh)) before running
@@ -24,14 +25,14 @@ EHpackage = rep(TRUE, length(eh))
 #load("EH_PartialSave_LoadingValidation.RData")
 
 pkgsList = BiocManager::available()
-eh_skipped = c(3272,6970,6971,6972,7296)
+eh_skipped = c()
 
-## 6970 maxed CPU and RAM ???
+## 6970 maxed CPU and RAM - try again bigger
 
 for(i in 1:length(eh)){
     message("EH: ", i, " of ", length(eh))
 
-if (!(i %in% skipped)){
+if (!(i %in% eh_skipped)){
     id = rownames(mcols(eh[i]))
     res_pkg = as.character(package(eh[i]))
     if (!(res_pkg %in% installed.packages()[,"Package"])){
@@ -150,21 +151,19 @@ save(EHids, EHcheck, EHpackage, eh_loading_mat, file="EH_LoadingValidation.RData
 
 ## What packages or recipes need to be loaded to test resources??
 ## Requires in AnnotationHub/R
-## c("Rsamtools", "GenomicRanges", "VariantAnnotation", "rtracklayer",
-## "Seqinfo", "rtracklayer", "rBiopaxParser", "Biobase", "gdsfmt", "rhdf5",
-## "CompoundDb", "keras", "ensembldb", "SummarizedExperiment", "mzR",
-## "Biostrings")
+## c("Rsamtools", "GenomicRanges", "VariantAnnotation", "rtracklayer", "Seqinfo", "rtracklayer", "rBiopaxParser", "Biobase", "gdsfmt", "rhdf5", "CompoundDb", "keras", "ensembldb", "SummarizedExperiment", "mzR", "Biostrings")
 ## temp = unique(mcols(ah)$preparerclass)
 ## temp[temp %in% BiocManager::available()]
     
 ah <- AnnotationHub()
 AHcheck = rep(TRUE, length(ah))
 AHpreparerclass = rep(TRUE, length(ah))
+ah_skipped = c()
 
 for(i in 1:length(ah)){
     message("AH: ",i, " of ", length(ah))
 
-    
+if(!(i %in% ah_skipped)){
     id = rownames(mcols(ah[i]))
     AHcheck[i] = tryCatch({
         temp = ah[[id]]
@@ -173,8 +172,12 @@ for(i in 1:length(ah)){
     removeResources(ah, ids=id)
     AHpreparerclass[i] = mcols(ah[i])$preparerclass
     save.image("AH_PartialSave_LoadingValidation.RData")
+}else{
+    save.image("AH_PartialSave_LoadingValidation.RData")
 }
+} 
 AHids = rownames(mcols(ah))
 
-save(AHids, AHcheck, AHpreparerclass, file="AH_LoadingValidation.RData")
+ah_loading_mat = data.frame(AHids, AHpreparerclass, AHcheck)
+save(AHids, AHcheck, AHpreparerclass, ah_loading_mat, file="AH_LoadingValidation.RData")
 

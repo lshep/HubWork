@@ -2,9 +2,7 @@
 ##   Some resources crashed maxing out CPU/RAM
 ## Try m3.xl: 32 CPU 125 RAM (and still upped to 100 GB root disk -- maybe more?)
 
-sudo apt-get install subversion
-sudo apt-get install libxml2-dev
-sudo apt-get install libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev  libmagick++-dev libcairo2-dev libgsl-dev
+sudo apt-get install subversion libxml2-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev  libmagick++-dev libcairo2-dev libgsl-dev
 sudo apt-get install libfftw3-dev libgdal-dev libudunits2-dev
 mkdir R-Install R-Install/src R-Install/bin
 cd R-Install/src
