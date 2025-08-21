@@ -181,3 +181,18 @@ AHids = rownames(mcols(ah))
 ah_loading_mat = data.frame(AHids, AHpreparerclass, AHcheck)
 save(AHids, AHcheck, AHpreparerclass, ah_loading_mat, file="AH_LoadingValidation.RData")
 
+## length(which(!AHcheck))
+##    1342
+## temp = ah_loading_mat[which(!AHcheck),]
+## unique(ah_loading_mat[which(!AHcheck),"AHpreparerclass"])
+##  [1] "Inparanoid8ImportPreparer"       "ChEAImportPreparer"             
+##  [3] "PazarImportPreparer"             "BioPaxImportPreparer"           
+##  [5] "EncodeImportPreparer"            "HaemCodeImportPreparer"         
+##  [7] "EpigenomeRoadMapPreparer"        "PXD000001MzTabToMSnSetPreparer" 
+##  [9] "PXD000001MzidToMzRidentPreparer" "EnsemblGtfImportPreparer"       
+## [11] "hpAnnot"                         "EnsemblTwoBitPreparer"          
+## [13] "ipdDb"                           "phastCons30way.UCSC.hg38"       
+## [15] "EpiTxDb.Hs.hg38"                 "EpiTxDb.Mm.mm10"                
+## [17] "EpiTxDb.Sc.sacCer3"              "scAnnotatR.models"              
+## [19] "AHMassBank"                      "CENTREannotation"               
+## [21] "AHEnsDbs"                       

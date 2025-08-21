@@ -115,6 +115,7 @@ ah_sub_path = sub_path
 ah_temp = ah_sub_path[which(!ah_results),]
 ah_bad = ah_temp[which(ah_temp[,3]=="Public"),]
 ## dim(ah_bad)
+# [1] 12487     5
 ## investigate these?
 ## make sure rdatadateremoved is also NA
 
