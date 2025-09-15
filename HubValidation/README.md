@@ -19,7 +19,10 @@ ensure validity.
 3. **ValidateEndpoints.R** Using resource download url check if available. This
    may have false positives if server does not allow HEAD request.
        Produces: **ehresults.RData** and  **ahresults.RData**
-   
+
+   **ValidateEndpointV2.R** Second attempt at this step but using EHid/AHid
+     (incomplete. still work in progress)
+
 4. **InvestigateBadEndpoints.R** Manual investigation of failures from
    ValidateEndpoints.R
 
