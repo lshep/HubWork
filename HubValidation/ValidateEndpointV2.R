@@ -41,18 +41,19 @@ ahid = full_unique_ah_id_list[1]
 
     tbl_values <- full2 %>% filter(ah_id == ahid)
     status_values <- tbl_values %>% select(status_id) %>% pull()
+    removed_dates <- tbl_values %>% select(rdatadateremoved) %>% pull()
     if(any(status_values != 2)){
-        message(ahid, " is not longer active id in AnnotationHub")
+        message(ahid, " does not have active status in AnnotationHub")
         if(any(status_values == 2)){
             message("  ", ahid, " has mixed status. Investigate")
-        }
-        rdatadateremoved <- tbl_values %>% select(rdatadateremoved) %>% pull()
-        if(any(is.na(rdatadateremoved))){
+        } 
+        if(any(is.na(removed_dates))){
             message("  ", ahid, " rdatadateremove may not be specified. Investigate")
         }            
-    }
-    if(!is.na(tbl_values %>% select(rdatadateremoved) %>% pull())){
-        message(ahid, " has rdatadateremove but not a remove status. Investigate")
+    }else{       
+        if(!all(is.na(removed_dates))){
+            message(ahid, " has rdatadateremove but not a remove status. Investigate")
+        }
     }
     ## Do we care with checking endpoint then?
     endpoints <- tbl_values %>% mutate(endpoint = paste0(location_prefix, rdatapath)) %>% pull(endpoint)
