@@ -1,15 +1,44 @@
-library(dplyr)
-library(dbplyr)
-library(RSQLite)
-library(AnnotationHub)
-library(ExperimentHub)
-library(BiocFileCache)
-#library(httr)
-library(httr2)
+args <- commandArgs(trailingOnly = TRUE)
+
+if (length(args) != 2) {
+  stop("Expecting two arguments: Hub Type (AnnotationHub/ExperimentHub) and Hub resource id (e.g AH2/EH2)",
+  call. = FALSE)
+}
+
+Hub <- args[1]
+hubid <- args[2]
+
+##-------------------------------------------------------------------------------------------
+##  Argument Sanity Check
+##-------------------------------------------------------------------------------------------
+
+if( ((Hub == "ExperimentHub") & startsWith(hubid, "AH")) |
+    ((Hub == "AnnotationHub") & startsWith(hubid, "EH")) ){
+    
+    stop("Mismatch of Hub with hubid.\n",
+         "  ExperimentHub should have EH ids\n",
+         "  AnnotationHub should have AH ids\n",
+         "  Received: ", Hub, " ", hubid)
+}
+
+##-------------------------------------------------------------------------------------------
+##  Load R Libraries
+##-------------------------------------------------------------------------------------------
+
+
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(dbplyr))
+suppressPackageStartupMessages(library(RSQLite))
+suppressPackageStartupMessages(library(AnnotationHub))
+suppressPackageStartupMessages(library(ExperimentHub))
+suppressPackageStartupMessages(library(BiocFileCache))
+suppressPackageStartupMessages(library(httr2))
+
 
 
 ## Possible Argument to script in addition to hubid (see below), which Hub is it
-Hub <- "AnnotationHub"
+## Added as script argument
+# Hub <- "AnnotationHub"
 
 
 ##-------------------------------------------------------------------------------------------
@@ -53,9 +82,7 @@ full2 <- left_join(full, status, by=c("status_id"="id"))
 ##  Likely this will be removed if we are not looping over ids
 ##-------------------------------------------------------------------------------------------
 
-full_unique_id_list <- full2 %>% select(ah_id) %>% collect() %>% unique() %>% pull()
-
-
+# full_unique_id_list <- full2 %>% select(ah_id) %>% collect() %>% unique() %>% pull()
 
 ##-------------------------------------------------------------------------------------------
 ##  Temporarily assign manually an ahid
@@ -65,7 +92,8 @@ full_unique_id_list <- full2 %>% select(ah_id) %>% collect() %>% unique() %>% pu
 ## if we looped over ids
 #for(ahid in full_unique_id_list){
 
-hubid = full_unique_id_list[1]
+## Added as script argument
+# hubid = full_unique_id_list[1]
 
 
 
@@ -88,41 +116,48 @@ hubid = full_unique_id_list[1]
 ##
 
 tbl_values <- full2 %>% filter(ah_id == hubid)
-status_values <- tbl_values %>% select(status_id) %>% pull()
-removed_dates <- tbl_values %>% select(rdatadateremoved) %>% pull()
-if(any(status_values != 2)){
-    message(hubid, ": WARNING not public status in ", Hub)
-    if(any(status_values == 2)){
-        message(hubid, ": WARNING mixed status. Investigate")
-    } 
-    if(any(is.na(removed_dates))){
-        message(hubid, ": WARNING rdatadateremove not specified. Investigate")
-    }            
-}else{       
-    if(!all(is.na(removed_dates))){
-        message(hubid, ": WARNING rdatadateremove but no remove status. Investigate")
-    }
-}
+if(nrow(tbl_values %>% collect()) == 0){
+    
+    message(hubid, ": ERROR id does not exist in ", Hub)
 
-## Do we care with checking endpoint based on if status or rdatadateremoved are indicated? 
-
-endpoints <- tbl_values %>% mutate(endpoint = paste0(location_prefix, rdatapath)) %>% pull(endpoint)
-
-statuses <- sapply(endpoints, function(url) {
-    tryCatch({
-        req <- request(url) |> 
-        req_method("HEAD")
-        resp <- req_perform(req)
-        resp_status(resp)
-    }, error = function(e) {
-        warning(sprintf("%s: Request to %s failed: %s", hubid, url, e$message))
-        400  # or e$message if you want the error text instead
-    })
-})
-if(all(statuses == 200)){
-    message(hubid, ": OK endpoint valid")
 }else{
-    message(hubid, ": ERROR contains an invalid endpoint")
+
+    status_values <- tbl_values %>% select(status_id) %>% pull()
+    removed_dates <- tbl_values %>% select(rdatadateremoved) %>% pull()
+    if(any(status_values != 2)){
+        message(hubid, ": WARNING not public status in ", Hub)
+        if(any(status_values == 2)){
+            message(hubid, ": WARNING mixed status. Investigate")
+        } 
+        if(any(is.na(removed_dates))){
+            message(hubid, ": WARNING rdatadateremove not specified. Investigate")
+        }            
+    }else{       
+        if(!all(is.na(removed_dates))){
+            message(hubid, ": WARNING rdatadateremove but no remove status. Investigate")
+        }
+    }
+
+    ## Do we care with checking endpoint based on if status or rdatadateremoved are indicated? 
+
+    endpoints <- tbl_values %>% mutate(endpoint = paste0(location_prefix, rdatapath)) %>% pull(endpoint)
+
+    statuses <- sapply(endpoints, function(url) {
+        tryCatch({
+            req <- request(url) |> 
+            req_method("HEAD")
+            resp <- req_perform(req)
+            resp_status(resp)
+        }, error = function(e) {
+            warning(sprintf("%s: Request to %s failed: %s", hubid, url, e$message))
+            400  # or e$message if you want the error text instead
+        })
+    })
+    if(all(statuses == 200)){
+        message(hubid, ": OK endpoint valid")
+    }else{
+        message(hubid, ": ERROR contains an invalid endpoint")
+    }
 }
 
 
