@@ -44,9 +44,9 @@ would be instead of each step sequentially performing on ids, send each id as a
 separate job.  The scripts in this directory are modified from the original to
 operate per id basis.  These scripts currently take two arguments:
 
-	1. **Hub Type** (AnnotationHub or ExperimentHub)
+1. Hub Type (AnnotationHub or ExperimentHub)
 
-	2. **Hub Id** (Id to perform task. eg. AH1, AH5012, EH2, EH1221)
+2. Hub Id (Id to perform task. eg. AH1, AH5012, EH2, EH1221)
 
 Current Scripts:
 
@@ -57,10 +57,10 @@ downloaded for better precision).
 2. **ValidateEndpoints.R**: Checks status in Hub (if should be available via
 status/rdatadateremoved) and validates endpoint via `httr2::HEAD$status`
 
-3. comboscript.R: Attempt at combining previous steps in single script.
+3. **comboscript.R**: Attempt at combining previous steps in single script.
 
 All functions currently can be executed using Rscript and passing the required
 two arguments.
 
-`Rscript comboscript.R ExperimentHub EH1`
-`Rscript comboscript.R AnnotationHub AH5012`
+    Rscript comboscript.R ExperimentHub EH1
+    Rscript comboscript.R AnnotationHub AH5012
