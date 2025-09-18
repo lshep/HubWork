@@ -12,8 +12,13 @@ hubid <- args[2]
 ##  Argument Sanity Check
 ##-------------------------------------------------------------------------------------------
 
-if( ((Hub == "ExperimentHub") & startsWith(hubid, "AH")) |
-    ((Hub == "AnnotationHub") & startsWith(hubid, "EH")) ){
+if( !(Hub %in% c("ExperimentHub", "AnnotationHub")) ){
+    stop("Hub must be either ExperimentHub or AnnotationHub.\n",
+         "  Received: ", Hub)
+}
+
+if( ((Hub == "ExperimentHub") & !startsWith(hubid, "EH")) |
+    ((Hub == "AnnotationHub") & !startsWith(hubid, "AH")) ){
     
     stop("Mismatch of Hub with hubid.\n",
          "  ExperimentHub should have EH ids\n",
