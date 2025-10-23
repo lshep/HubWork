@@ -37,8 +37,14 @@ suppressPackageStartupMessages(library(AnnotationHub))
 suppressPackageStartupMessages(library(ExperimentHub))
 suppressPackageStartupMessages(library(BiocFileCache))
 suppressPackageStartupMessages(library(httr2))
+suppressPackageStartupMessages(library(jsonlite))
 
-
+status_output = list(HubType = Hub,
+                     HubID = hubid,
+                     IdExists = TRUE,
+                     IdStatus = "OK",
+                     Endpoints = "OK",
+                     FileSize = NA)
 
 ## Possible Argument to script in addition to hubid (see below), which Hub is it
 ## Added as script argument
@@ -123,6 +129,7 @@ tbl_values <- full2 %>% filter(ah_id == hubid)
 if(nrow(tbl_values %>% collect()) == 0){
     
     message(hubid, ": ERROR id does not exist in ", Hub)
+    status_output[["IdExists"]] = FALSE
 
 }else{
 
@@ -130,15 +137,19 @@ if(nrow(tbl_values %>% collect()) == 0){
     removed_dates <- tbl_values %>% select(rdatadateremoved) %>% pull()
     if(any(status_values != 2)){
         message(hubid, ": WARNING not public status in ", Hub)
+        status_output[["IdStatus"]] = "WARNING"
         if(any(status_values == 2)){
             message(hubid, ": WARNING mixed status. Investigate")
+            status_output[["IdStatus"]] = "WARNING"
         } 
         if(any(is.na(removed_dates))){
             message(hubid, ": WARNING rdatadateremove not specified. Investigate")
+            status_output[["IdStatus"]] = "WARNING"
         }            
     }else{       
         if(!all(is.na(removed_dates))){
             message(hubid, ": WARNING rdatadateremove but no remove status. Investigate")
+            status_output[["IdStatus"]] = "WARNING"
         }
     }
 
@@ -161,6 +172,7 @@ if(nrow(tbl_values %>% collect()) == 0){
         message(hubid, ": OK endpoint valid")
     }else{
         message(hubid, ": ERROR contains an invalid endpoint")
+        status_output[["Endpoints"]] = "ERROR"
     }
 }
 
@@ -184,8 +196,11 @@ fileSize <-
         NA
     })
 
+if(!is.na(fileSize)) status_output[["FileSize"]] = fileSize
+
 msg <- ifelse(is.na(fileSize),
               paste0(hubid, ": WARNING cannot determine filesize"),
               paste0(hubid, ": OK filesize: ",fileSize, " bytes"))
-
 message(msg)
+
+return(toJSON(status_output))
