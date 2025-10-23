@@ -1,0 +1,22 @@
+FROM alpine:3.19
+
+# Install R and minimal dependencies
+RUN apk add --no-cache \
+    R \
+    R-dev \
+    gcc \
+    g++ \
+    make \
+    curl-dev \
+    freetype-dev \
+    && rm -rf /var/cache/apk/*
+
+# Install only essential R packages
+RUN R -e "install.packages(c('BiocManager', 'dplyr', 'dbplyr', 'RSQLite', 'httr2'), repos='https://cran.rstudio.com/')" \
+    && R -e "BiocManager::install(c('AnnotationHub', 'ExperimentHub', 'BiocFileCache'), clean=TRUE)"
+
+WORKDIR /app
+COPY scriptsForSinglePassedId/comboscript.R ./comboscript.R
+RUN chmod +x ./comboscript.R
+
+ENTRYPOINT ["Rscript", "/app/comboscript.R"]

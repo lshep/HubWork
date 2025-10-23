@@ -1,0 +1,19 @@
+services:
+  hub_validator:
+    build:
+      context: .
+      dockerfile: Dockerfile # change to Dockerfile.alpine to test the alpine image
+    image: hub_validator
+    container_name: hub_validator
+    # Example usage - uncomment and modify as needed:
+    # command: ["AnnotationHub", "AH5012"]
+    # To test different IDs, change the command arguments above
+    networks:
+      - hub_network
+
+volumes:
+  r_cache:
+
+networks:
+  hub_network:
+    driver: bridge
