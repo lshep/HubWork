@@ -44,7 +44,8 @@ status_output = list(HubType = Hub,
                      IdExists = TRUE,
                      IdStatus = "OK",
                      Endpoints = "OK",
-                     FileSize = NA)
+                     FileSize = NA,
+                     StatusMessages = "")
 
 ## Possible Argument to script in addition to hubid (see below), which Hub is it
 ## Added as script argument
@@ -124,32 +125,41 @@ full2 <- left_join(full, status, by=c("status_id"="id"))
 ##    ?? does a non public status mean that it would not be visible in previous
 ##       versions ??
 ##
+status_messages = ""
 
 tbl_values <- full2 %>% filter(ah_id == hubid)
 if(nrow(tbl_values %>% collect()) == 0){
-    
-    message(hubid, ": ERROR id does not exist in ", Hub)
+    msgTxt <- paste0(hubid, ": ERROR id does not exist in ", Hub)
+    message(msgTxt)
     status_output[["IdExists"]] = FALSE
-
+    status_messages = paste(status_messages, msgTxt, "\n")
 }else{
 
     status_values <- tbl_values %>% select(status_id) %>% pull()
     removed_dates <- tbl_values %>% select(rdatadateremoved) %>% pull()
     if(any(status_values != 2)){
-        message(hubid, ": WARNING not public status in ", Hub)
+        msgTxt <- paste0(hubid, ": WARNING not public status in ", Hub)
+        message(msgTxt)
         status_output[["IdStatus"]] = "WARNING"
+        status_messages = paste(status_messages, msgTxt, "\n")
         if(any(status_values == 2)){
-            message(hubid, ": WARNING mixed status. Investigate")
+            msgTxt <- paste0(hubid, ": WARNING mixed status. Investigate")
+            message(msgTxt)
             status_output[["IdStatus"]] = "WARNING"
+            status_messages = paste(status_messages, msgTxt, "\n")
         } 
-        if(any(is.na(removed_dates))){
-            message(hubid, ": WARNING rdatadateremove not specified. Investigate")
+            if(any(is.na(removed_dates))){
+            msgTxt <- paste0(hubid, ": WARNING rdatadateremove not specified. Investigate")  
+            message(msgTxt)
             status_output[["IdStatus"]] = "WARNING"
+            status_messages = paste(status_messages, msgTxt, "\n")
         }            
     }else{       
         if(!all(is.na(removed_dates))){
-            message(hubid, ": WARNING rdatadateremove but no remove status. Investigate")
+            msgTxt <- paste0(hubid, ": WARNING rdatadateremove but no remove status. Investigate")
+            message(msgTxt)
             status_output[["IdStatus"]] = "WARNING"
+            status_messages = paste(status_messages, msgTxt, "\n")
         }
     }
 
@@ -164,15 +174,21 @@ if(nrow(tbl_values %>% collect()) == 0){
             resp <- req_perform(req)
             resp_status(resp)
         }, error = function(e) {
-            warning(sprintf("%s: Request to %s failed: %s", hubid, url, e$message))
+            msgTxt <- sprintf("%s: Request to %s failed: %s", hubid, url, e$message)
+            warning(msgTxt)
+            status_messages = paste(status_messages, msgTxt, "\n")
             400  # or e$message if you want the error text instead
         })
     })
     if(all(statuses == 200)){
-        message(hubid, ": OK endpoint valid")
+        msgTxt <- paste0(hubid, ": OK endpoint valid")
+        message(msgTxt)
+        status_messages = paste(status_messages, msgTxt, "\n")
     }else{
-        message(hubid, ": ERROR contains an invalid endpoint")
+        msgTxt <- paste0(hubid, ": ERROR contains an invalid endpoint")    
+        message(msgTxt)
         status_output[["Endpoints"]] = "ERROR"
+        status_messages = paste(status_messages, msgTxt, "\n")
     }
 }
 
@@ -202,5 +218,7 @@ msg <- ifelse(is.na(fileSize),
               paste0(hubid, ": WARNING cannot determine filesize"),
               paste0(hubid, ": OK filesize: ",fileSize, " bytes"))
 message(msg)
+status_messages = paste(status_messages, msg, "\n")
+status_output[["StatusMessage"]] <- status_messages
 
 return(toJSON(status_output))
