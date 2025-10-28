@@ -221,4 +221,5 @@ message(msg)
 status_messages = paste(status_messages, msg, "\n")
 status_output[["StatusMessage"]] <- status_messages
 
-return(toJSON(status_output))
+#return(toJSON(status_output))
+cat(toJSON(status_output))
