@@ -219,7 +219,7 @@ msg <- ifelse(is.na(fileSize),
               paste0(hubid, ": OK filesize: ",fileSize, " bytes"))
 message(msg)
 status_messages = paste(status_messages, msg, "\n")
-status_output[["StatusMessage"]] <- status_messages
+status_output[["StatusMessages"]] <- status_messages
 
 #return(toJSON(status_output))
 cat(toJSON(status_output))
