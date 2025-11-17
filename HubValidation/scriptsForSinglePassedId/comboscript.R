@@ -148,7 +148,7 @@ if(nrow(tbl_values %>% collect()) == 0){
             status_output[["IdStatus"]] = "WARNING"
             status_messages = paste(status_messages, msgTxt, "\n")
         } 
-            if(any(is.na(removed_dates))){
+        if(any(is.na(removed_dates))){
             msgTxt <- paste0(hubid, ": WARNING rdatadateremove not specified. Investigate")  
             message(msgTxt)
             status_output[["IdStatus"]] = "WARNING"
