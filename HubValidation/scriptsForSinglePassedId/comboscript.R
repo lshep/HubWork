@@ -45,6 +45,8 @@ status_output = list(HubType = Hub,
                      IdStatus = "OK",
                      Endpoints = "OK",
                      FileSize = NA,
+                     RClassIndicated = NA,
+                     PackageOrRecipe = NA,
                      StatusMessages = "")
 
 ## Possible Argument to script in addition to hubid (see below), which Hub is it
@@ -190,6 +192,8 @@ if(nrow(tbl_values %>% collect()) == 0){
         status_output[["Endpoints"]] = "ERROR"
         status_messages = paste(status_messages, msgTxt, "\n")
     }
+    status_output[["RClassIndicated"]] <- tbl_values %>% select(rdataclass) %>% pull()
+    status_output[["PackageOrRecipe"]] <- tbl_values %>% select(preparerclass) %>% pull()
 }
 
 
