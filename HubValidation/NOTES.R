@@ -22,7 +22,8 @@
 ##
 ############################
 
-## Ensure main classes of Bioconductor have been installed before running
+## Ensure main classes of Bioconductor have been installed before running?? Or
+## is this overkill too?
 
 
 c('SummarizedExperiment', 'GenomicRanges', 'RaggedExperiment', 'Biostrings', 'BiocSet', 'MultiAssayExperiment', 'SingleCellExperiment', 'SpatialExperiment', 'Spectra', 'BiocIO', 'ExperimentHub', 'dplyr', 'httr')
@@ -173,7 +174,9 @@ c('SummarizedExperiment', 'GenomicRanges', 'RaggedExperiment', 'Biostrings', 'Bi
 
 
 ## What packages or recipes need to be loaded to test resources??
-## Requires in AnnotationHub/R
+## Requires in AnnotationHub/R -- these are defined in AnnotationHub but are all
+## active?
+
 
 c("Rsamtools", "GenomicRanges", "VariantAnnotation", "rtracklayer", "Seqinfo", "rtracklayer", "rBiopaxParser", "Biobase", "gdsfmt", "rhdf5", "CompoundDb", "keras", "ensembldb", "SummarizedExperiment", "mzR", "Biostrings")
 
@@ -239,3 +242,141 @@ c("Rsamtools", "GenomicRanges", "VariantAnnotation", "rtracklayer", "Seqinfo", "
 [73] "cadd.v1.6.hg38"                      "EPICv2manifest"                     
 [75] "TENET.AnnotationHub"                 "CENTREannotation"                   
 [77] "org.Hbacteriophora.eg.db"            "JASPAR"                             
+
+
+
+
+###############################################################
+###############################################################
+
+##
+## Google Search on classes defined by submitter
+##  May be buggy since google search
+##
+
+ExpressionSet: Biobase
+SummarizedExperiment, RangedSummarizedExperiment: SummarizedExperiment
+GRanges, GRangesList: GenomicRanges
+DataFrame, DFrame: S4Vectors
+GAlignmentPairs: GenomicAlignments
+RaggedExperiment: RaggedExperiment
+SingleCellExperiment: SingleCellExperiment
+MultiAssayExperiment: MultiAssayExperiment
+InteractionSet: InteractionSet
+SpatialExperiment: SpatialExperiment
+SpatialFeatureExperiment: SpatialFeatureExperiment
+DEXSeqDataSet: DEXSeq
+CytoImageList: cytomapper
+MIAME: Biobase
+FaFile, BamFile: Rsamtools
+GFF3File: Rgff
+AAStringSet, DNAStringSet: Biostrings
+ZipFile: This is a file format, not a specific R class.
+SQLiteConnection: RSQLite
+H5File, HDF5Database: hdf5r
+bsseq, BSseq: bsseq
+flowSet: flowCore
+RGChannelSet, RGChannelSetExtended, GenomicRatioSet: minfi
+SigSet, SigDF: sesame
+randomForest: randomForest
+mzXML: mzR
+adductQuantif: adductomicsR
+SummarizedBenchmark: SummarizedBenchmark
+GeneRegionTrack: Gviz
+HDF5-SummarizedExperiment, HDF5Matrix, TENxMatrix: HDF5Array
+QFeatures: QFeatures
+SeuratObject, Seurat: The SeuratObject package defines the class, while Seurat is the main analysis package.
+magick-image: magick
+caretStack, preProcess: caret
+EBImage: EBImage
+mixo_splsda: mixOmics
+HIC: hictoolsr
+PWMatrixList: TFBSTools
+ranger: ranger
+list, character, data.frame, matrix, numeric, vector: These are base R data types.
+List, Character: These are S4 equivalents of base R types, often defined in foundational packages like S4Vectors.
+tibble, tbl: tibble
+sparseMatrix, dgCMatrix: Matrix
+data.table: data.table
+GSEABase::GeneSetCollection: The package name is explicitly given as GSEABase.
+keras.engine.functional.Functional: This is a Python class from the keras
+package.
+AAStringSet	Biostrings
+BigWigFile	Rsamtools (via the Rtracklayer helper functions)
+ChainFile	Rsamtools (via the Rtracklayer helper functions)
+CollapsedVCF	VariantAnnotation
+ExpressionSet	Biobase
+FaFile	Rsamtools
+GRanges	GenomicRanges
+MSnSet	MSnbase
+Rle	IRanges
+TwoBitFile	Rsamtools (via the Rtracklayer helper functions)
+VcfFile	Rsamtools
+CompDb	RforComp or similar metabolomics packages
+EnsDb	EnsDb (part of the ensembldb suite of packages)
+Inparanoid8Db	inparanoid8 (annotation package)
+OrgDb	AnnotationDbi (base package for organim database)
+TxDb	GenomicFeatures (via makeTxDbFromGFF etc.)
+biopax	biopax
+JASPAR	JASPAR2024
+data.frame	base
+data.table	data.table
+list	base
+character	base
+igraph	igraph
+mzRident	mzR
+mzRpwiz	mzR
+SQLiteConnection	RSQLite or DBI
+SQLiteFile	RSQLite
+SQLite	RSQLite
+String	BiocGenerics / S4Vectors (base S4 type)
+tibble / Tibble	tibble
+Rda	Not a standard S4 class, usually just an R Data file.
+data.frame, DNAStringSet, GRanges	These are descriptions of combined object types, not a single class name.
+
+##
+## See BiocClassInvestigation.R
+##
+##  made copy of mapped_classes.csv and manually adjust 
+##
+
+
+tbl <- read.csv("mapped_classes.csv")
+
+unique(tbl[,"package"])
+
+ [1] "Rsamtools"                "GenomicRanges"           
+ [3] "VariantAnnotation"        "base"                    
+ [5] "RSQLite"                  "AnnotationDbi"           
+ [7] "rtracklayer"              "DBI"                     
+ [9] "rBiopaxParser"            "Biobase"                 
+[11] "Biostrings"               "MSnbase"                 
+[13] "mzR"                      "S4Vectors"               
+[15] "GenomicFeatures"          "ensembldb"               
+[17] "igraph"                   "data.table"              
+[19] "tibble"                   "CompoundDb"              
+[21] "SummarizedExperiment"     "GenomicAlignments"       
+[23] "CellMapper"               "gdsfmt"                  
+[25] "RaggedExperiment"         "bsseq"                   
+[27] "flowCore"                 "wateRmelon"              
+[29] "sesame"                   "segmenter"               
+[31] "randomForest"             "SingleCellExperiment"    
+[33] "minfi"                    "adductomicsR"            
+[35] "SummarizedBenchmark"      "Bioc.gff"                
+[37] "Matrix"                   "Gviz"                    
+[39] "Spectra"                  "HDF5Array"               
+[41] "hdf5"                     "QFeatures"               
+[43] "Seurat"                   "GSEABase"                
+[45] "IRanges"                  "SpatialExperiment"       
+[47] "h5mread"                  "caret"                   
+[49] "magick"                   "InteractionSet"          
+[51] "EBImage"                  "SpatialFeatureExperiment"
+[53] "DEXSeq"                   "cytomapper"              
+[55] "MultiAssayExperiment"     "PSMatch"                 
+[57] "keras"                    "hictoolsr"               
+[59] "mixOmics"                 "raster"                  
+[61] "TFBSTools"                "SparseArray"             
+[63] "ranger"                  
+
+## Did seperate analysis with public resources: may not need segmenter if it
+## adds alot of extra 
