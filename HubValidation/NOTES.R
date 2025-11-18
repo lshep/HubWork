@@ -337,9 +337,10 @@ data.frame, DNAStringSet, GRanges	These are descriptions of combined object type
 ##
 ## See BiocClassInvestigation.R
 ##
-##  made copy of mapped_classes.csv and manually adjust 
+##  made copy of mapped_classes.csv and manually adjusted
 ##
 
+## List of packages needs for loading of any resource based on maintainer specified
 
 tbl <- read.csv("mapped_classes.csv")
 
