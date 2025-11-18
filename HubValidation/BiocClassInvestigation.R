@@ -104,7 +104,7 @@ mapped$package[is.na(mapped$package)] <- "NOT FOUND"
 save(definedClasses, setclass_map, mapped, file = "BiocClassInvestigation.RData")
 
 write.csv(mapped, "mapped_classes.csv", row.names = FALSE)
-
+write.csv(setclass_map, "setClassInBioc.csv", row.names = FALSE)
 
 ## tbl <- read.csv("mapped_classes.csv")
 
