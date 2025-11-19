@@ -1,5 +1,0 @@
-Check if a non public status hinders loading in previous versions of R
-   (ie. endpoint still valid but removed for other reasons, ideally for
-   reproduciblitiy if the resource is still available it should be available in
-   the versions of R before removal)
-   

@@ -1,0 +1,40 @@
+Check if a non public status hinders loading in previous versions of R
+   (ie. endpoint still valid but removed for other reasons, ideally for
+   reproduciblitiy if the resource is still available it should be available in
+   the versions of R before removal)
+
+
+Result:
+
+   Non Public Status / rdatadate removed does not hinder previous versions from
+   finding or loading still available resources
+
+   R 4.5 Bioc 3.22
+   > eh = ExperimentHub()
+   snapshotDate(): 2025-10-07
+   > getInfoOnIds(eh, "EH8551")
+      ah_id fetch_id       title rdataclass
+      7699 EH8551     8617 MSA.address       list
+                                      status biocversion rdatadateadded
+7699 file updated with new entry in database        3.19     2024-01-11
+     rdatadateremoved file_size
+7699       2025-11-14   5070777
+
+    > temp = eh[["EH8551"]]
+    loading from cache
+
+
+   R 4.6 Bioc 3.23
+   > eh = ExperimentHub()
+   snapshotDate(): 2025-11-14
+   > getInfoOnIds(eh, "EH8551")
+      ah_id fetch_id       title rdataclass
+7699 EH8551     8617 MSA.address       list
+                                      status biocversion rdatadateadded
+7699 file updated with new entry in database        3.19     2024-01-11
+     rdatadateremoved file_size
+7699       2025-11-14   5070777
+
+    > temp = eh[["EH8551"]]
+    Error: file updated with new entry in database
+    Resource removed on: 2025-11-14
