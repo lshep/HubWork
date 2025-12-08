@@ -100,7 +100,7 @@ if(!(hubid %in% rownames(mcols(hub)))){
     })
 
     
-    res
+    
     
     ##
     ## move filesize to before removal to check ones that dont have size in

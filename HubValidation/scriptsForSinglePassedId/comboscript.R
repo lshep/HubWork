@@ -47,6 +47,9 @@ status_output = list(HubType = Hub,
                      FileSize = NA,
                      RClassIndicated = NA,
                      PackageOrRecipe = NA,
+                     Loading = "OK",
+                     RClassLoaded = "",
+                     FileSizeLocally = NA,
                      StatusMessages = "")
 
 ## Possible Argument to script in addition to hubid (see below), which Hub is it
@@ -225,5 +228,133 @@ message(msg)
 status_messages = paste(status_messages, msg, "\n")
 status_output[["StatusMessages"]] <- status_messages
 
-#return(toJSON(status_output))
+
+##-------------------------------------------------------------------------------------------
+##  Check Loading of File
+##
+##    This can get buggy:
+##       May need additional packages to be installed/loaded
+##
+##       Some resources require large amounts of memory or CPU
+##         Can we track this information so we can have a snapshot of resources
+##         needed
+##
+
+loading_msg <- ""
+
+safe_load <- function(expr) {
+  tryCatch(
+    {
+      expr
+      list(success = TRUE, message = NULL)
+    },
+    error = function(e) {
+      list(success = FALSE, message = conditionMessage(e))
+    }
+  )
+}
+get_pkg <- function(msg) {
+  if (is.null(msg)) return(NA_character_)
+  if (!grepl("required package", msg)) return(NA_character_)
+  sub(".*required package '([^']+)'.*", "\\1", msg)
+}
+
+if(!(hubid %in% rownames(mcols(hub)))){    
+    message("hubid: ", hubid, " not active in ", Hub)
+    status_output[["Loading"]] = "ERROR"
+}else{
+    
+    res <- safe_load({
+        temp <- hub[[hubid]]
+    })
+     
+    ## 
+    ## Re-try loading associated package? 
+    ##    ?? also search error message and try ?? sub(".*required package '([^']+)'.*", "\\1", res$message)
+    if(!res$success){
+        loading_message <- res$message
+        pkgs_needed <- unique(na.omit(c(get_pkg(res$message), package(hub[hubid]))))
+        if(length(pkgs_needed) == 0){
+            loading_msg <- paste0(hubid, ": ERROR loading. No packages to install or load")
+            status_output[["Loading"]] = "ERROR"
+        }else{
+            installed <- rownames(installed.packages())
+            loading_msg <- paste0(loading_msg, "\n", hubid,
+                                  ": Attempting to install packages: ", paste(pkgs_needed, collapse = ", "))
+            for (p in pkgs_needed) {
+                
+                if (!(p %in% installed)) {
+                    tryCatch(
+                        BiocManager::install(p, ask = FALSE),
+                        error = function(e) {
+                            loading_msg <- paste0(loading_msg, "\n", hubid,": Unable to install required package ", p)
+                        })
+                }              
+                tryCatch(suppressPackageStartupMessages(library(p)),
+                         error = function(e) {
+                             loading_msg <- paste0(loading_msg, "\n", hubid, ": Unable to load required package ",p)
+                         })                   
+            }
+            ## second attempt after attempting to load required packages
+            res2 <- safe_load({
+                temp <- hub[[hubid]]
+            })           
+            if(!res$success){
+                loading_msg <- paste0(hubid,": ERROR Loading.") 
+                status_output[["Loading"]] = "ERROR"
+            }else{
+                loading_msg <- paste0(hubid,": OK loading after additional required packages installed or loaded.")
+            }    
+            
+        }        
+    }else{
+        loading_msg <- paste0(hubid, ": OK loading")
+    }
+    message(loading_msg)
+    status_output[["StatusMessages"]] <- paste0(status_output[["StatusMessages"]], "\n", loading_msg)
+    
+    ##
+    ## Check loaded object class to have indication of needed package??
+    ##     Could check against RClassIndicated??
+    ##
+    if(status_output[["Loading"]] == "OK"){
+        status_output[["RClassLoaded"]] = paste(class(temp), collapse = ", ")
+    }
+    
+    
+    ##
+    ## move filesize to before removal to check ones that dont have size in
+    ## header information?
+    ##
+    fileSize2 <- tryCatch({
+        bfc <- BiocFileCache(cache = hubCache(hub))
+        bfcnames <- sub("^(EH[0-9]+).*", "\\1", bfcinfo(bfc)$rname)
+        localpath <- bfcinfo(bfc)$rpath[which(bfcnames == hubid)]
+        file.info(localpath)$size
+    },error=function(err){
+        NA
+    })
+    if(!is.na(fileSize2)) status_output[["FileSizeLocally"]] = fileSize2
+    msg <- ifelse(is.na(fileSize2),
+                  paste0(hubid, ": WARNING cannot determine local filesize"),
+                  paste0(hubid, ": OK local filesize: ",fileSize2, " bytes"))
+    message(msg)
+    status_output[["StatusMessages"]] <- paste0(status_output[["StatusMessages"]],"\n", msg)
+
+    
+    ##
+    ## remove resources
+    ##
+    removeResources(hub, ids=hubid)
+
+}
+
+
+
+## ------------------------------------------------------------------------------------------
+##
+## return(toJSON(status_output))
+##
+##
+
 cat(toJSON(status_output))
