@@ -345,7 +345,7 @@ if(!(hubid %in% rownames(mcols(hub)))){
     ##
     ## remove resources
     ##
-    removeResources(hub, ids=hubid)
+    suppressMessages(removeResources(hub, ids=hubid))
 
 }
 
@@ -356,5 +356,9 @@ if(!(hubid %in% rownames(mcols(hub)))){
 ## return(toJSON(status_output))
 ##
 ##
+jsonObj <-  toJSON(status_output)
+fileName <- file.path(paste0(hubid, ".json"))
 
-cat(toJSON(status_output))
+cat(jsonObj)
+
+write_json(jsonObj, fileName)
