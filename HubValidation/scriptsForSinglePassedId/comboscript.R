@@ -222,10 +222,10 @@ fileSize <-
 
 if(!is.na(fileSize)) status_output[["FileSize"]] = fileSize
 
-msg <- ifelse(is.na(fileSize),
+msgTxt <- ifelse(is.na(fileSize),
               paste0(hubid, ": WARNING cannot determine filesize"),
               paste0(hubid, ": OK filesize: ",fileSize, " bytes"))
-message(msg)
+message(msgTxt)
 status_messages[["FileSize"]] = append(status_messages[["FileSize"]], msgTxt)
 
 
