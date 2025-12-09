@@ -19,7 +19,7 @@ if( !(Hub %in% c("ExperimentHub", "AnnotationHub")) ){
 
 if( ((Hub == "ExperimentHub") & !startsWith(hubid, "EH")) |
     ((Hub == "AnnotationHub") & !startsWith(hubid, "AH")) ){
-    
+
     stop("Mismatch of Hub with hubid.\n",
          "  ExperimentHub should have EH ids\n",
          "  AnnotationHub should have AH ids\n",
@@ -50,7 +50,7 @@ status_output = list(HubType = Hub,
                      Loading = "OK",
                      RClassLoaded = "",
                      FileSizeLocally = NA,
-                     StatusMessages = "")
+                     StatusMessages = NA)
 
 ## Possible Argument to script in addition to hubid (see below), which Hub is it
 ## Added as script argument
@@ -67,17 +67,17 @@ if(Hub == "AnnotationHub"){
     hub <- AnnotationHub()
     bfc <- AnnotationHub:::.get_cache(hub)
     hub_sqlite <- bfcpath(bfc, bfcrid(bfcquery(bfc, "annotationhub.sqlite3", fields="rname", exact=TRUE)))
-    
+
 }else{
-    
+
     ## Load AnnotationHub and get the path to the sqlite file
     hub <- ExperimentHub()
     bfc <- AnnotationHub:::.get_cache(hub)
     hub_sqlite <- bfcpath(bfc, bfcrid(bfcquery(bfc, "experimenthub.sqlite3", fields="rname", exact=TRUE)))
 }
 
-    
-## Load Sqlite file for direct query of all database tables and rows 
+
+## Load Sqlite file for direct query of all database tables and rows
 ## including removed, deprecated, rdatadateremoved
 
 hubcon <- DBI::dbConnect(RSQLite::SQLite(), hub_sqlite)
@@ -86,7 +86,7 @@ rdatapaths <- tbl(hubcon, "rdatapaths")
 locationPF <- tbl(hubcon, "location_prefixes")
 status <- tbl(hubcon, "statuses")
 
-full <- 
+full <-
 left_join(rdatapaths, left_join(resources, locationPF,
                                 by=c("location_prefix_id"="id")),
           by=c("resource_id"="id"))
@@ -130,14 +130,14 @@ full2 <- left_join(full, status, by=c("status_id"="id"))
 ##    ?? does a non public status mean that it would not be visible in previous
 ##       versions ??
 ##
-status_messages = ""
+status_messages = list()
 
 tbl_values <- full2 %>% filter(ah_id == hubid)
 if(nrow(tbl_values %>% collect()) == 0){
     msgTxt <- paste0(hubid, ": ERROR id does not exist in ", Hub)
     message(msgTxt)
     status_output[["IdExists"]] = FALSE
-    status_messages = paste(status_messages, msgTxt, "\n")
+    status_messages[["Idexists"]] = msgTxt
 }else{
 
     status_values <- tbl_values %>% select(status_id) %>% pull()
@@ -146,54 +146,55 @@ if(nrow(tbl_values %>% collect()) == 0){
         msgTxt <- paste0(hubid, ": WARNING not public status in ", Hub)
         message(msgTxt)
         status_output[["IdStatus"]] = "WARNING"
-        status_messages = paste(status_messages, msgTxt, "\n")
+        #status_messages[["IdStatus"]] = msgTxt
+        status_messages[["IdStatus"]] = append(status_messages[["IdStatus"]], msgTxt)
         if(any(status_values == 2)){
             msgTxt <- paste0(hubid, ": WARNING mixed status. Investigate")
             message(msgTxt)
             status_output[["IdStatus"]] = "WARNING"
-            status_messages = paste(status_messages, msgTxt, "\n")
-        } 
+            status_messages[["IdStatus"]] = append(status_messages[["IdStatus"]], msgTxt)
+        }
         if(any(is.na(removed_dates))){
-            msgTxt <- paste0(hubid, ": WARNING rdatadateremove not specified. Investigate")  
+            msgTxt <- paste0(hubid, ": WARNING rdatadateremove not specified. Investigate")
             message(msgTxt)
             status_output[["IdStatus"]] = "WARNING"
-            status_messages = paste(status_messages, msgTxt, "\n")
-        }            
-    }else{       
+            status_messages[["IdStatus"]] = append(status_messages[["IdStatus"]], msgTxt)
+        }
+    }else{
         if(!all(is.na(removed_dates))){
             msgTxt <- paste0(hubid, ": WARNING rdatadateremove but no remove status. Investigate")
             message(msgTxt)
             status_output[["IdStatus"]] = "WARNING"
-            status_messages = paste(status_messages, msgTxt, "\n")
+            status_messages[["IdStatus"]] = append(status_messages[["IdStatus"]], msgTxt)
         }
     }
 
-    ## Do we care with checking endpoint based on if status or rdatadateremoved are indicated? 
+    ## Do we care with checking endpoint based on if status or rdatadateremoved are indicated?
 
     endpoints <- tbl_values %>% mutate(endpoint = paste0(location_prefix, rdatapath)) %>% pull(endpoint)
 
     statuses <- sapply(endpoints, function(url) {
         tryCatch({
-            req <- request(url) |> 
+            req <- request(url) |>
             req_method("HEAD")
             resp <- req_perform(req)
             resp_status(resp)
         }, error = function(e) {
             msgTxt <- sprintf("%s: Request to %s failed: %s", hubid, url, e$message)
             warning(msgTxt)
-            status_messages = paste(status_messages, msgTxt, "\n")
+            status_messages[["Endpoint"]] = append(status_messages[["Endpoint"]], msgTxt)
             400  # or e$message if you want the error text instead
         })
     })
     if(all(statuses == 200)){
         msgTxt <- paste0(hubid, ": OK endpoint valid")
         message(msgTxt)
-        status_messages = paste(status_messages, msgTxt, "\n")
+        status_messages[["Endpoint"]] = append(status_messages[["Endpoint"]], msgTxt)
     }else{
-        msgTxt <- paste0(hubid, ": ERROR contains an invalid endpoint")    
+        msgTxt <- paste0(hubid, ": ERROR contains an invalid endpoint")
         message(msgTxt)
         status_output[["Endpoints"]] = "ERROR"
-        status_messages = paste(status_messages, msgTxt, "\n")
+        status_messages[["Endpoint"]] = append(status_messages[["Endpoint"]], msgTxt)
     }
     status_output[["RClassIndicated"]] <- tbl_values %>% select(rdataclass) %>% pull()
     status_output[["PackageOrRecipe"]] <- tbl_values %>% select(preparerclass) %>% pull()
@@ -208,7 +209,7 @@ DBI::dbDisconnect(hubcon)
 ##  uses Hub function that internally uses httr2 HEAD content-length
 ##
 ##  NOTE: consider moving to after download and get official content size and to
-##  avoid situations where content-lenght is not available 
+##  avoid situations where content-lenght is not available
 ## -------------------------------------------------------------------------------------------
 
 
@@ -225,8 +226,7 @@ msg <- ifelse(is.na(fileSize),
               paste0(hubid, ": WARNING cannot determine filesize"),
               paste0(hubid, ": OK filesize: ",fileSize, " bytes"))
 message(msg)
-status_messages = paste(status_messages, msg, "\n")
-status_output[["StatusMessages"]] <- status_messages
+status_messages[["FileSize"]] = append(status_messages[["FileSize"]], msgTxt)
 
 
 ##-------------------------------------------------------------------------------------------
@@ -240,7 +240,6 @@ status_output[["StatusMessages"]] <- status_messages
 ##         needed
 ##
 
-loading_msg <- ""
 
 safe_load <- function(expr) {
   tryCatch(
@@ -259,60 +258,77 @@ get_pkg <- function(msg) {
   sub(".*required package '([^']+)'.*", "\\1", msg)
 }
 
-if(!(hubid %in% rownames(mcols(hub)))){    
-    message("hubid: ", hubid, " not active in ", Hub)
+if(!(hubid %in% rownames(mcols(hub)))){
+    msgTxt <- paste0(hubid, ": ERROR not active in ", Hub)
+    message(msgTxt)
     status_output[["Loading"]] = "ERROR"
+    status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
 }else{
-    
+
     res <- safe_load({
         temp <- hub[[hubid]]
     })
-     
-    ## 
-    ## Re-try loading associated package? 
+
+    ##
+    ## Re-try loading associated package?
     ##    ?? also search error message and try ?? sub(".*required package '([^']+)'.*", "\\1", res$message)
     if(!res$success){
-        loading_message <- res$message
+        msgTxt<- res$message
+        message(msgTxt)
+        status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
         pkgs_needed <- unique(na.omit(c(get_pkg(res$message), package(hub[hubid]))))
         if(length(pkgs_needed) == 0){
-            loading_msg <- paste0(hubid, ": ERROR loading. No packages to install or load")
+            msgTxt <- paste0(hubid, ": ERROR loading. No packages to install or load")
+            message(msgTxt)
+            status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
             status_output[["Loading"]] = "ERROR"
         }else{
             installed <- rownames(installed.packages())
-            loading_msg <- paste0(loading_msg, "\n", hubid,
-                                  ": Attempting to install packages: ", paste(pkgs_needed, collapse = ", "))
+            msgTxt <- paste0(hubid,": Attempting to install packages: ", paste(pkgs_needed, collapse = ", "))
+            message(msgTxt)
+            status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
             for (p in pkgs_needed) {
-                
+
                 if (!(p %in% installed)) {
                     tryCatch(
                         BiocManager::install(p, ask = FALSE),
                         error = function(e) {
-                            loading_msg <- paste0(loading_msg, "\n", hubid,": Unable to install required package ", p)
+                            msgTxt <- paste0(loading_msg, "\n", hubid,": Unable to install required package ", p)
+                            message(msgTxt)
+                            status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
                         })
-                }              
+                }
                 tryCatch(suppressPackageStartupMessages(library(p)),
                          error = function(e) {
-                             loading_msg <- paste0(loading_msg, "\n", hubid, ": Unable to load required package ",p)
-                         })                   
+                             msgTxt <- paste0(loading_msg, "\n", hubid, ": Unable to load required package ",p)
+                             message(msgTxt)
+                             status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
+                         })
             }
             ## second attempt after attempting to load required packages
             res2 <- safe_load({
                 temp <- hub[[hubid]]
-            })           
+            })
             if(!res$success){
-                loading_msg <- paste0(hubid,": ERROR Loading.") 
+                msgTxt <- paste0(hubid,": ERROR Loading.")
+                message(msgTxt)
+                status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
                 status_output[["Loading"]] = "ERROR"
             }else{
-                loading_msg <- paste0(hubid,": OK loading after additional required packages installed or loaded.")
-            }    
-            
-        }        
+                msgTxt <- paste0(hubid,": WARNING OK loading after additional required packages installed or loaded.")
+                message(msgTxt)
+                status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
+                status_output[["Loading"]] = "WARNING"
+            }
+
+        }
     }else{
-        loading_msg <- paste0(hubid, ": OK loading")
+        msgTxt <- paste0(hubid, ": OK loading")
+        message(msgTxt)
+        status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
     }
-    message(loading_msg)
-    status_output[["StatusMessages"]] <- paste0(status_output[["StatusMessages"]], "\n", loading_msg)
-    
+
+
     ##
     ## Check loaded object class to have indication of needed package??
     ##     Could check against RClassIndicated??
@@ -320,8 +336,8 @@ if(!(hubid %in% rownames(mcols(hub)))){
     if(status_output[["Loading"]] == "OK"){
         status_output[["RClassLoaded"]] = paste(class(temp), collapse = ", ")
     }
-    
-    
+
+
     ##
     ## move filesize to before removal to check ones that dont have size in
     ## header information?
@@ -335,13 +351,13 @@ if(!(hubid %in% rownames(mcols(hub)))){
         NA
     })
     if(!is.na(fileSize2)) status_output[["FileSizeLocally"]] = fileSize2
-    msg <- ifelse(is.na(fileSize2),
-                  paste0(hubid, ": WARNING cannot determine local filesize"),
-                  paste0(hubid, ": OK local filesize: ",fileSize2, " bytes"))
+    msgTxt <- ifelse(is.na(fileSize2),
+                     paste0(hubid, ": WARNING cannot determine local filesize"),
+                     paste0(hubid, ": OK local filesize: ",fileSize2, " bytes"))
     message(msg)
-    status_output[["StatusMessages"]] <- paste0(status_output[["StatusMessages"]],"\n", msg)
+    status_messages[["FileSizeLocally"]] = append(status_messages[["FileSizeLocally"]], msgTxt)
 
-    
+
     ##
     ## remove resources
     ##
@@ -349,6 +365,7 @@ if(!(hubid %in% rownames(mcols(hub)))){
 
 }
 
+status_output[["StatusMessages"]] <- status_messages
 
 
 ## ------------------------------------------------------------------------------------------
