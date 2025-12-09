@@ -1,0 +1,6 @@
+## TODOs:
+
+finishing adding loading test
+convert the statusmessage to list (so list in list)
+save an example json for a few runs
+consider json to duckdb
