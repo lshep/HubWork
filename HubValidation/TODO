@@ -1,6 +1,8 @@
 ## TODOs:
 
 finishing adding loading test
-convert the statusmessage to list (so list in list)
-save an example json for a few runs
+	  consider modualizing code more as there is an example of a resource
+	  that will fix a first instance of missing required package but then
+	  fail on the second loading as there was a later defined required
+	  package ...  make robust to cover ?
 consider json to duckdb

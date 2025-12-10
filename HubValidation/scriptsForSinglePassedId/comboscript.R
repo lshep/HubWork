@@ -254,8 +254,13 @@ safe_load <- function(expr) {
 }
 get_pkg <- function(msg) {
   if (is.null(msg)) return(NA_character_)
-  if (!grepl("required package", msg)) return(NA_character_)
-  sub(".*required package '([^']+)'.*", "\\1", msg)
+  if (grepl("required package", msg)) {
+    return(sub(".*required package '([^']+)'.*", "\\1", msg))
+  }
+  if (grepl('require\\(".*"\\) failed', msg)) {
+    return(sub('.*require\\("([^"]+)"\\) failed.*', "\\1", msg))
+  }
+  return(NA_character_)
 }
 
 if(!(hubid %in% rownames(mcols(hub)))){
@@ -291,16 +296,17 @@ if(!(hubid %in% rownames(mcols(hub)))){
 
                 if (!(p %in% installed)) {
                     tryCatch(
-                        BiocManager::install(p, ask = FALSE),
+                        BiocManager::install(p),
                         error = function(e) {
-                            msgTxt <- paste0(loading_msg, "\n", hubid,": Unable to install required package ", p)
+                            msgTxt <-
+                    paste0(hubid,": Unable to install required package ", p, " ERROR: ", e$message)
                             message(msgTxt)
                             status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
                         })
                 }
-                tryCatch(suppressPackageStartupMessages(library(p)),
+                tryCatch(suppressPackageStartupMessages(library(p, character.only=TRUE)),
                          error = function(e) {
-                             msgTxt <- paste0(loading_msg, "\n", hubid, ": Unable to load required package ",p)
+                             msgTxt <- paste0(hubid,": Unable to load required package ",p, " ERROR: ", e$message)
                              message(msgTxt)
                              status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
                          })
@@ -310,7 +316,7 @@ if(!(hubid %in% rownames(mcols(hub)))){
                 temp <- hub[[hubid]]
             })
             if(!res$success){
-                msgTxt <- paste0(hubid,": ERROR Loading.")
+                msgTxt <- paste0(hubid,": ERROR Loading ", res2$message)
                 message(msgTxt)
                 status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
                 status_output[["Loading"]] = "ERROR"
