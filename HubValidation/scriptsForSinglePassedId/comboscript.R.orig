@@ -263,74 +263,6 @@ get_pkg <- function(msg) {
   return(NA_character_)
 }
 
-log_status <- function(status_list, key, msg) {
-  message(msg)
-  status_list[[key]] <- append(status_list[[key]], msg)
-  status_list
-}
-
-install_and_load <- function(pkgs, hubid, status_messages, failed_pkgs) {
-  installed <- rownames(installed.packages())
-  for (p in pkgs) {
-    if (p %in% failed_pkgs) next  # skip packages that already failed
-
-    if (!(p %in% installed)) {
-      tryCatch(
-        BiocManager::install(p),
-        error = function(e) {
-          msg <- paste0(hubid, ": Unable to install package ", p, " ERROR: ", e$message)
-          status_messages <<- log_status(status_messages, "Loading", msg)
-          failed_pkgs <<- unique(c(failed_pkgs, p))
-        }
-      )
-    }
-
-    if (!(p %in% failed_pkgs)) {
-      tryCatch(
-        suppressPackageStartupMessages(library(p, character.only = TRUE)),
-        error = function(e) {
-          msg <- paste0(hubid, ": Unable to load package ", p, " ERROR: ", e$message)
-          status_messages <<- log_status(status_messages, "Loading", msg)
-          failed_pkgs <<- unique(c(failed_pkgs, p))
-        }
-      )
-    }
-  }
-  list(status_messages = status_messages, failed_pkgs = failed_pkgs)
-}
-
-load_hub_with_retry <- function(hub, hubid, status_messages, max_attempts = 3) {
-  failed_pkgs <- character()
-  attempt <- 1
-  repeat {
-    res <- safe_load({ temp <- hub[[hubid]] })
-
-    if (res$success) {
-      msg <- paste0(hubid, ": OK loading")
-      status_messages <- log_status(status_messages, "Loading", msg)
-      return(list(success = TRUE, temp = temp, status_messages = status_messages))
-    }
-
-    pkgs_needed <- unique(na.omit(c(get_pkg(res$message), package(hub[hubid]))))
-    pkgs_needed <- setdiff(pkgs_needed, failed_pkgs)
-
-    if (length(pkgs_needed) == 0 || attempt > max_attempts) {
-      msg <- paste0(hubid, ": ERROR loading after ", attempt, " attempts. Last error: ", res$message)
-      status_messages <- log_status(status_messages, "Loading", msg)
-      return(list(success = FALSE, temp = NULL, status_messages = status_messages))
-    }
-
-    msg <- paste0(hubid, ": Attempt ", attempt, " - installing/loading packages: ", paste(pkgs_needed, collapse = ", "))
-    status_messages <- log_status(status_messages, "Loading", msg)
-
-    out <- install_and_load(pkgs_needed, hubid, status_messages, failed_pkgs)
-    status_messages <- out$status_messages
-    failed_pkgs <- out$failed_pkgs
-
-    attempt <- attempt + 1
-  }
-}
-
 if(!(hubid %in% rownames(mcols(hub)))){
     msgTxt <- paste0(hubid, ": ERROR not active in ", Hub)
     message(msgTxt)
@@ -338,16 +270,79 @@ if(!(hubid %in% rownames(mcols(hub)))){
     status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
 }else{
 
-    result <- load_hub_with_retry(hub, hubid, status_messages, max_attempts = 3)
-    status_messages <- result$status_messages
-    
-    if (result$success) {
-        status_output[["Loading"]] <- "OK"
-        status_output[["RClassLoaded"]] <- paste(class(result$temp), collapse = ", ")
-        temp <- result$temp  
-    } else {
-        status_output[["Loading"]] <- "ERROR"
+    res <- safe_load({
+        temp <- hub[[hubid]]
+    })
+
+    ##
+    ## Re-try loading associated package?
+    ##    ?? also search error message and try ?? sub(".*required package '([^']+)'.*", "\\1", res$message)
+    if(!res$success){
+        msgTxt<- res$message
+        message(msgTxt)
+        status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
+        pkgs_needed <- unique(na.omit(c(get_pkg(res$message), package(hub[hubid]))))
+        if(length(pkgs_needed) == 0){
+            msgTxt <- paste0(hubid, ": ERROR loading. No packages to install or load")
+            message(msgTxt)
+            status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
+            status_output[["Loading"]] = "ERROR"
+        }else{
+            installed <- rownames(installed.packages())
+            msgTxt <- paste0(hubid,": Attempting to install packages: ", paste(pkgs_needed, collapse = ", "))
+            message(msgTxt)
+            status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
+            for (p in pkgs_needed) {
+
+                if (!(p %in% installed)) {
+                    tryCatch(
+                        BiocManager::install(p),
+                        error = function(e) {
+                            msgTxt <-
+                    paste0(hubid,": Unable to install required package ", p, " ERROR: ", e$message)
+                            message(msgTxt)
+                            status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
+                        })
+                }
+                tryCatch(suppressPackageStartupMessages(library(p, character.only=TRUE)),
+                         error = function(e) {
+                             msgTxt <- paste0(hubid,": Unable to load required package ",p, " ERROR: ", e$message)
+                             message(msgTxt)
+                             status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
+                         })
+            }
+            ## second attempt after attempting to load required packages
+            res2 <- safe_load({
+                temp <- hub[[hubid]]
+            })
+            if(!res$success){
+                msgTxt <- paste0(hubid,": ERROR Loading ", res2$message)
+                message(msgTxt)
+                status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
+                status_output[["Loading"]] = "ERROR"
+            }else{
+                msgTxt <- paste0(hubid,": WARNING OK loading after additional required packages installed or loaded.")
+                message(msgTxt)
+                status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
+                status_output[["Loading"]] = "WARNING"
+            }
+
+        }
+    }else{
+        msgTxt <- paste0(hubid, ": OK loading")
+        message(msgTxt)
+        status_messages[["Loading"]] = append(status_messages[["Loading"]], msgTxt)
     }
+
+
+    ##
+    ## Check loaded object class to have indication of needed package??
+    ##     Could check against RClassIndicated??
+    ##
+    if(status_output[["Loading"]] == "OK"){
+        status_output[["RClassLoaded"]] = paste(class(temp), collapse = ", ")
+    }
+
 
     ##
     ## move filesize to before removal to check ones that dont have size in
