@@ -344,7 +344,8 @@ if(!(hubid %in% rownames(mcols(hub)))){
     ##
     fileSize2 <- tryCatch({
         bfc <- BiocFileCache(cache = hubCache(hub))
-        bfcnames <- sub("^(EH[0-9]+).*", "\\1", bfcinfo(bfc)$rname)
+        prefix <- if (class(hub)[1] == "AnnotationHub") "AH" else "EH"
+        bfcnames <- sub(paste0("^(", prefix, "[0-9]+).*"), "\\1", bfcinfo(bfc)$rname)
         localpath <- bfcinfo(bfc)$rpath[which(bfcnames == hubid)]
         file.info(localpath)$size
     },error=function(err){
