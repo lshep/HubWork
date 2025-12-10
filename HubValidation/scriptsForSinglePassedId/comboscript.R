@@ -354,7 +354,7 @@ if(!(hubid %in% rownames(mcols(hub)))){
     msgTxt <- ifelse(is.na(fileSize2),
                      paste0(hubid, ": WARNING cannot determine local filesize"),
                      paste0(hubid, ": OK local filesize: ",fileSize2, " bytes"))
-    message(msg)
+    message(msgTxt)
     status_messages[["FileSizeLocally"]] = append(status_messages[["FileSizeLocally"]], msgTxt)
 
 
