@@ -1,0 +1,18 @@
+## Some Initial Thoughts
+Convert sqlite to parquet to work with a new dplyr interface
+Have a contributions like current submission process with github actions for validation
+Transition to csv add, update, delete with metadata to make sqlite/duckdb/etc/parquet 
+?? How is logging set up to keep track of activity??
+
+
+## download current sqlite files
+wget https://experimenthub.bioconductor.org/metadata/experimenthub.sqlite3
+wget https://annotationhub.bioconductor.org/metadata/annotationhub.sqlite3
+
+
+## General conversion of sqlite table to parquet
+## duckdb -c "ATTACH 'your_database.sqlite' AS db; COPY db.your_table TO 'output.parquet' (FORMAT PARQUET);"
+
+Do we want all current tables or can/should we change it?
+Do we combine certain information into one table and consoladate down other? (Seans conversation about including information as json?)
+
