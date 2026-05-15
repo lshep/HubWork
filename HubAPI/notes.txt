@@ -16,3 +16,19 @@ wget https://annotationhub.bioconductor.org/metadata/annotationhub.sqlite3
 Do we want all current tables or can/should we change it?
 Do we combine certain information into one table and consoladate down other? (Seans conversation about including information as json?)
 
+openapi endpoints
+
+# python
+https://fastapi.tiangolo.com/
+
+# R
+https://www.rplumber.io/
+
+# example
+https://petstore.swagger.io/
+
+
+
+# 
+whats required?
+whats optional?
