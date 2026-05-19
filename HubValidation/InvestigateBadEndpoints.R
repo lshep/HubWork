@@ -63,6 +63,7 @@ for(i in prefix){
 ## Other files at this endpoint are okay. AH49009 : Laurent Gatto maintainer and
 ## mentioned in ProteomicsAnnotationHubData that was deprecated in
 ## 3.16. contacted
+## FIXED as of 05/19/2026
 
 "http://haemcode.stemcells.cam.ac.uk/"
 ## 16 files
@@ -243,3 +244,52 @@ ah_bad[which(ah_bad$location_prefix == "https://bioconductorhubs.blob.core.windo
 ## seems release-84 to release-109
 ## these are gtf? are these granges on the fly?
 ## false positive?
+
+
+
+
+
+
+##
+## sqlite calls to deprecate
+
+UPDATE resources SET rdatadateremoved = '2026-04-28'
+WHERE ah_id IN ('AH22237',
+    'AH28151', 'AH28152', 'AH28153', 'AH28154', 'AH28155',
+    'AH28257', 'AH28262', 'AH28263',
+    'AH28466', 'AH28467', 'AH28468', 'AH28469', 'AH28470',
+    'AH28572', 'AH28577', 'AH28578',
+    'AH57956', 'AH57957', 'AH57958', 'AH57959',
+    'AH57960', 'AH57961', 'AH57962', 'AH57963',
+    'AH49545', 'AH49546', 'AH49547', 'AH49548', 'AH49549', 'AH49550', 'AH49551',
+    'AH49552', 'AH49553', 'AH49554', 'AH49555', 'AH49556', 'AH49557', 'AH49558',
+    'AH49559', 'AH49560', 'AH49561', 'AH49562',
+    'AH75118', 'AH75119', 'AH75120', 'AH75121', 'AH75122', 'AH75123', 'AH75124',
+    'AH75125', 'AH75126', 'AH75127', 'AH75128', 'AH75129', 'AH75130',
+    'AH22238','AH22239','AH22240','AH22241','AH22242','AH22243','AH22244','AH22245','AH22246','AH22247','AH22248','AH22249','AH22250','AH22251','AH22252','AH22253','AH22254','AH22255','AH22256','AH22257','AH22258','AH22259','AH22260','AH22261','AH22262','AH22263','AH22264','AH22265','AH22266','AH22267','AH22268','AH22269','AH22270','AH22271','AH22272','AH22273','AH22274','AH22275','AH22276','AH22277','AH22278','AH22279','AH22280','AH22281','AH22282','AH22283','AH22284','AH22285','AH22286','AH22287','AH22288','AH22289','AH22290','AH22291','AH22292','AH22293','AH22294','AH22295','AH22296','AH22297','AH22298','AH22299','AH22300','AH22301','AH22302','AH22303','AH22304','AH22305','AH22306','AH22307','AH22308','AH22309','AH22310','AH22311','AH22312','AH22313','AH22314','AH22315','AH22316','AH22317','AH22318','AH22319','AH22320','AH22321','AH22322','AH22323','AH22324','AH22325','AH22326','AH22327','AH22328');
+
+
+##
+## double check egg2 fix
+library(httr)
+url = paste0("http://egg2.wustl.edu/roadmap/data/byFileType/", ah_bad[which(ah_bad$location_prefix == "http://egg2.wustl.edu/roadmap/data/byFileType/"), "rdatapath"])
+url2 = gsub(url, pattern="peaks.bed.gz", replacement="peaks.v2.bed.gz")
+
+res = as.data.frame(matrix(NA, nrow=length(url), ncol=2))
+names(res) = c("orig", "corrected")
+for(u in 1:length(url)){
+   
+    res[u,1] =  HEAD(url[u])$status
+    res[u,2] = HEAD(url2[u])$status
+}
+
+## verified
+## example update. Updated each manually on May 19, 2026
+update rdatapaths set rdatapath = "peaks/consolidated/narrowPeak/E046-DNase.hotspot.all.peaks.v2.bed.gz" where rdatapath = "peaks/consolidated/narrowPeak/E046-DNase.hotspot.all.peaks.bed.gz" and dispatchclass="EpigenomeRoadmapNarrowAllPeaks";
+
+
+
+## TODO: 
+## come back to ones at Bioconductor hosted location (possible special character
+## path update?)
+
