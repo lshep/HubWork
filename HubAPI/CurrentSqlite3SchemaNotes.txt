@@ -1,0 +1,48 @@
+
+sqlite3 annotationhub.sqlite3
+
+.headers ON
+
+
+.schema
+
+## CREATE TABLE `location_prefixes` (`id` integer NOT NULL PRIMARY KEY , `location_prefix` varchar(255));
+## CREATE TABLE `recipes` (`id` integer NOT NULL PRIMARY KEY , `recipe` varchar(255), `package` varchar(255));
+## CREATE TABLE `resources` (`id` integer NOT NULL PRIMARY KEY , `ah_id` varchar(255) NOT NULL, `title` varchar(255), `dataprovider` text, `species` varchar(255), `taxonomyid` integer, `genome` varchar(255), `description` text, `coordinate_1_based` boolean, `maintainer` varchar(255), `status_id` integer, `location_prefix_id` integer, `recipe_id` integer, `rdatadateadded` date, `rdatadateremoved` date, `record_id` integer, `preparerclass` varchar(255));
+## CREATE TABLE `schema_info` (`version` integer DEFAULT (0) NOT NULL);
+## CREATE TABLE `statuses` (`id` integer NOT NULL PRIMARY KEY , `status` varchar(255));
+## CREATE TABLE `test` (`id` integer NOT NULL PRIMARY KEY , `name` varchar(255) NOT NULL);
+## CREATE TABLE `timestamp` (`timestamp` timestamp DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')) NOT NULL);
+## CREATE TABLE `biocversions`(`id` integer DEFAULT (NULL) NOT NULL PRIMARY KEY , `biocversion` varchar(255) DEFAULT (NULL) NULL, `resource_id` integer DEFAULT (NULL) NULL, CONSTRAINT `biocversions_ibfk_1` FOREIGN KEY (`resource_id`) REFERENCES `resources`(`id`));
+## CREATE INDEX `biocversions_resource_id` ON `biocversions` (`resource_id`);
+## CREATE TABLE `input_sources`(`id` integer DEFAULT (NULL) NOT NULL PRIMARY KEY , `sourcesize` varchar(255) DEFAULT (NULL) NULL, `sourceurl` varchar(255) DEFAULT (NULL) NULL, `sourceversion` varchar(255) DEFAULT (NULL) NULL, `sourcemd5` varchar(255) DEFAULT (NULL) NULL, `sourcelastmodifieddate` date DEFAULT (NULL) NULL, `resource_id` integer DEFAULT (NULL) NULL, `sourcetype` varchar(255) DEFAULT (NULL) NULL, CONSTRAINT `input_sources_ibfk_1` FOREIGN KEY (`resource_id`) REFERENCES `resources`(`id`));
+## CREATE INDEX `input_sources_resource_id` ON `input_sources` (`resource_id`);
+## CREATE TABLE `rdatapaths`(`id` integer DEFAULT (NULL) NOT NULL PRIMARY KEY , `rdatapath` varchar(255) DEFAULT (NULL) NULL, `rdataclass` varchar(255) DEFAULT (NULL) NULL, `resource_id` integer DEFAULT (NULL) NULL, `dispatchclass` varchar(255) DEFAULT (NULL) NULL, CONSTRAINT `rdatapaths_ibfk_1` FOREIGN KEY (`resource_id`) REFERENCES `resources`(`id`));
+## CREATE INDEX `rdatapaths_resource_id` ON `rdatapaths` (`resource_id`);
+## CREATE TABLE `tags`(`tag` varchar(400) DEFAULT (NULL) NULL, `resource_id` integer DEFAULT (NULL) NULL, CONSTRAINT `tags_ibfk_1` FOREIGN KEY (`resource_id`) REFERENCES `resources`(`id`));
+## CREATE INDEX `tags_resource_id` ON `tags` (`resource_id`);
+
+
+
+.tables
+
+
+## biocversions       rdatapaths         schema_info        test             
+## input_sources      recipes            statuses           timestamp        
+## location_prefixes  resources          tags             
+
+
+
+## Manual Quick table and just columns names
+
+## biocversions: id|biocversion|resource_id
+## rdatapaths: id|rdatapath|rdataclass|resource_id|dispatchclass
+## schema_info: version
+## test:
+## input_sources: id|sourcesize|sourceurl|sourceversion|sourcemd5|sourcelastmodifieddate|resource_id|sourcetype
+## recipes: id|recipe|package
+## statuses: id|status
+## timestamp: timestamp
+## location_prefixes: id|location_prefix
+## resources: id|ah_id|title|dataprovider|species|taxonomyid|genome|description|coordinate_1_based|maintainer|status_id|location_prefix_id|recipe_id|rdatadateadded|rdatadateremoved|record_id|preparerclass
+## tags: tag|resource_id
