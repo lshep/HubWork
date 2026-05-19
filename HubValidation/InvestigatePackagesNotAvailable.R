@@ -50,7 +50,7 @@ removed_packages <- page %>%
 reason <- rep("", length(notAvail))
 reason[notAvail %in% removed_packages] <- "Package Deprecated and Removed"
 
-## Most Emails were sent out May 8
+## Most Emails were sent out May 8 2025
 
 ## > data.frame(notAvail, reason)
 
@@ -85,6 +85,11 @@ reason[notAvail %in% removed_packages] <- "Package Deprecated and Removed"
 
 
 
+## New when reran 05/19/26
+## homosapienDEE2CellScore - ERROR no packge CellScore (removed in 3.23); different maintainer contact
+## DaparToolshedData -- didnt finish review https://github.com/Bioconductor/Contributions/issues/3950
+## CLAMPData  - currently in review
+## OmniAgeRData - currently in review
 
 
 save.image(file="eh_pkgsnotavail.RData")
