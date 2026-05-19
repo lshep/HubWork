@@ -93,3 +93,17 @@ reason[notAvail %in% removed_packages] <- "Package Deprecated and Removed"
 
 
 save.image(file="eh_pkgsnotavail.RData")
+
+
+
+## Deprecate in sqlite
+UPDATE resources SET rdatadateremoved = '2026-04-28'
+WHERE preparerclass IN ('alpineData', 'restfulSEData', 'allenpvc',
+                        'brainimageRdata', 'tcgaWGBSData.hg19',
+                        'benchmarkfdrData2019', 'pwrEWAS.data', 'SCATEData',
+                        'scSpatial', 'FlowSorted.BloodExtended.EPIC',
+                        'EpiXprSData', 'prolfqua', 'benchmark.data.scRNAseq',
+                        'RLHub', 'BrainCellularComposition', 'CRCmodel',
+                        'CITEVizTestData', 'HiTIMED', 'tigeR.data',
+                        'leukemiaAtlas', 'cellScaleFactors', 'chevreuldata',
+                        'GIMiCC', 'sceptredata', 'msigdbeh');
