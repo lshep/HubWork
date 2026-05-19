@@ -57,10 +57,10 @@ reason[notAvail %in% removed_packages] <- "Package Deprecated and Removed"
 ##                         notAvail  reason
 ## 1                     alpineData Package Deprecated and Removed
 ## 2                  restfulSEData Package Deprecated and Removed
-## 3                  MetaGxOvarian   Currently failing since release     
+## 3                  MetaGxOvarian   Currently failing since release -- This has been resolved     
 ## 4                       allenpvc Package Deprecated and Removed
-## 5                brainimageRdata   Removed case mismatch brainImageRdata        
-## 6                 MetaGxPancreas   Currently failing since release     
+## 5                brainimageRdata Package Deprecated and Removed case mismatch brainImageRdata        
+## 6                 MetaGxPancreas   Currently failing since release -- This has been resolved      
 ## 7              tcgaWGBSData.hg19 Package Deprecated and Removed
 ## 8           benchmarkfdrData2019 Package Deprecated and Removed
 ## 9                   pwrEWAS.data Package Deprecated and Removed
@@ -77,15 +77,11 @@ reason[notAvail %in% removed_packages] <- "Package Deprecated and Removed"
 ## 20                       HiTIMED   Never finished submission https://github.com/Bioconductor/Contributions/issues/3030     
 ## 21                    tigeR.data   Emailed - email bounced    
 ## 22                 leukemiaAtlas   Data seemed wrong see validating endpoints - never responded to email follow up     
-## 23              cellScaleFactors   Emailed - no response      
+## 23              cellScaleFactors   Emailed - no response -   https://github.com/metamaden/cellScaleFactors/issues   
 ## 24                  chevreuldata   Did not accept data package and no response https://github.com/Bioconductor/Contributions/issues/3332   
 ## 25                        GIMiCC   Emailed - no response     
 ## 26                   sceptredata   Remove Requested- Emailed - using alternative smaller datasets     
-## 27             CENTREprecomputed   Currently In Review     
-## 28                      msigdbeh   Never finished submission https://github.com/Bioconductor/Contributions/issues/3771   
-## 29              AWAggregatorData   Currently In Review
-## 30                    ChIPDBData   Currently In Review   
-## 31                   MutSeqRData   Currently In Review     
+## 27                      msigdbeh   Never finished submission https://github.com/Bioconductor/Contributions/issues/3771   
 
 
 
