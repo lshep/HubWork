@@ -1,0 +1,3 @@
+[submodule "HubsSqliteToPartquet"]
+	path = HubsSqliteToPartquet
+	url = git@github.com:lshep/HubsSqliteToParquet.git
