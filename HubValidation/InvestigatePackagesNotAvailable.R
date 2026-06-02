@@ -107,3 +107,38 @@ WHERE preparerclass IN ('alpineData', 'restfulSEData', 'allenpvc',
                         'CITEVizTestData', 'HiTIMED', 'tigeR.data',
                         'leukemiaAtlas', 'cellScaleFactors', 'chevreuldata',
                         'GIMiCC', 'sceptredata', 'msigdbeh');
+
+
+
+## Went back and manually updated status_id 06/02/2026
+
+# cellScaleFactors interested in submitting. giving more time
+update resources set rdatadateremoved=NULL where preparerclass = "cellScaleFactors";
+
+
+update resources set status_id = 10 where preparerclass IN ('alpineData',
+                                                            'restfulSEData',
+                                                            'allenpvc',
+                                                            'brainimageRdata','tcgaWGBSData.hg19',
+                                                            'benchmarkfdrData2019',
+                                                            'pwrEWAS.data',
+                                                            'SCATEData',
+                                                            'RLHub');
+update resources set status_id = 9 where id = 554;
+
+
+update resources set status_id = 7 where preparerclass IN ('scSpatial',
+                                                           'EpiXprSData',
+                                                           'prolfqua',
+                                                           'benchmark.data.scRNAseq',
+                                                           'BrainCellularComposition',
+                                                           'CRCmodel',
+                                                           'CITEVizTestData',
+                                                           'HiTIMED',
+                                                           'tigeR.data',
+                                                           'chevreuldata',
+                                                           'GIMiCC', 'msigdbeh',
+                                                           'DaparToolshedData');
+
+update resources set status_id = 6 where preparerclass IN ('FlowSorted.BloodExtended.EPIC', 'sceptredata');
+update resources set status_id = 7 where preparerclass = "leukemiaAtlas";
