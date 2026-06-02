@@ -1,3 +1,6 @@
 [submodule "HubsSqliteToPartquet"]
 	path = HubsSqliteToParquet
 	url = git@github.com:lshep/HubsSqliteToParquet.git
+[submodule "BiocHubQuery"]
+	path = BiocHubQuery
+	url = git@github.com:lshep/BiocHubQuery.git
